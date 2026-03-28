@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuota de Venta por Día - EFI</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .container { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 420px; text-align: center; }
+        .logo { width: 150px; height: auto; margin-bottom: 1.5rem; }
+        h2 { color: #1a2a3a; margin-bottom: 1.2rem; font-size: 1.3rem; }
+        label { display: block; text-align: left; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 0.85rem; }
+        input, select { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #ccd0d5; border-radius: 8px; box-sizing: border-box; font-size: 0.95rem; }
+        .btn-main { width: 100%; padding: 14px; background-color: #0056b3; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.3s; margin-bottom: 10px; }
+        .btn-main:hover { background-color: #004494; }
+        #app-content { display: none; }
+        .result-box { margin-top: 20px; padding: 15px; background: #f8fbff; border: 1px solid #d1e3f8; border-radius: 10px; color: #1a2a3a; text-align: left; line-height: 1.5; }
+        .highlight { color: #0056b3; font-weight: bold; font-size: 1.2rem; }
+        .actions { display: flex; gap: 10px; margin-top: 15px; display: none; }
+        .btn-share { flex: 1; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.85rem; color: white; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .btn-ws { background-color: #25D366; }
+        .btn-pdf { background-color: #e74c3c; }
+    </style>
+</head>
+<body>
+
+<div class="container" id="printable-area">
+    <div id="login-section">
+        <img src="logo.png" alt="Eficacia Logo" class="logo" onerror="this.style.display='none'">
+        <h2>Acceso Calculadora</h2>
+        <input type="password" id="password" placeholder="Contraseña">
+        <button class="btn-main" onclick="checkPassword()">Entrar</button>
+    </div>
+
+    <div id="app-content">
+        <img src="logo.png" alt="Eficacia Logo" style="width: 100px; margin-bottom: 10px;" onerror="this.style.display='none'">
+        <h2>Cuota de Venta por Día</h2>
+        
+        <div style="display: flex; gap: 10px;">
+            <div style="flex: 1;"><label>Año</label><input type="number" id="anio" value="2026"></div>
+            <div style="flex: 2;"><label>Mes</label>
+                <select id="mes">
+                    <option value="31">Enero</option><option value="28">Febrero</option><option value="31">Marzo</option>
+                    <option value="30">Abril</option><option value="31">Mayo</option><option value="30">Junio</option>
+                    <option value="31">Julio</option><option value="31">Agosto</option><option value="30">Septiembre</option>
+                    <option value="31">Octubre</option><option value="30">Noviembre</option><option value="31">Diciembre</option>
+                </select>
+            </div>
+        </div>
+
+        <label>Presupuesto Total (100%)</label>
+        <input type="number" id="presupuesto" placeholder="0.00">
+        
+        <label>Ventas Acumuladas</label>
+        <input type="number" id="ventas" placeholder="0.00">
+        
+        <label>Días Transcurridos</label>
+        <input type="number" id="dias-transcurridos" placeholder="Ej: 10">
+
+        <label>Objetivo de Cumplimiento</label>
+        <select id="porcentaje">
+            <option value="0.70">70%</option><option value="0.80">80%</option>
+            <option value="0.90">90%</option><option value="1.00" selected>100%</option>
+            <option value="1.10">110%</option><option value="1.20">120%</option>
+        </select>
+        
+        <button class="btn-main" onclick="calcular()">Calcular</button>
+
+        <div id="resultado" class="result-box" style="display: none;"></div>
+
+        <div class="actions" id="action-buttons">
+            <button class="btn-share btn-ws" onclick="compartirWS()">WhatsApp</button>
+            <button class="btn-share btn-pdf" onclick="descargarPDF()">Descargar PDF</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let globalResumen = "";
+
+    function checkPassword() {
+        if (document.getElementById('password').value === "12345efi") {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('app-content').style.display = 'block';
+        } else { alert("Contraseña incorrecta."); }
+    }
+
+    function calcular() {
+        const pto = parseFloat(document.getElementById('presupuesto').value);
+        const vta = parseFloat(document.getElementById('ventas').value);
+        const totalDias = parseInt(document.getElementById('mes').value);
+        const transcurridos = parseInt(document.getElementById('dias-transcurridos').value);
+        const porc = parseFloat(document.getElementById('porcentaje').value);
+
+        if (isNaN(pto) || isNaN(vta) || isNaN(transcurridos)) return alert("Ingresa datos válidos.");
+
+        const metaAjustada = pto * porc;
+        const faltante = metaAjustada - vta;
+        const diasRestantes = totalDias - transcurridos;
+
+        const resDiv = document.getElementById('resultado');
+        resDiv.style.display = 'block';
+        document.getElementById('action-buttons').style.display = 'flex';
+
+        if (diasRestantes <= 0) {
+            globalResumen = "Días transcurridos superan o igualan los días del mes.";
+            resDiv.innerHTML = `<strong>Aviso:</strong> ${globalResumen}`;
+        } else {
+            const cuota = (faltante / diasRestantes).toFixed(2);
+            const textoPorc = Math.round(porc * 100) + "%";
+            
+            globalResumen = `*Cuota de Venta por Día (${textoPorc})*\n` +
+                            `Meta Ajustada: $${metaAjustada.toLocaleString()}\n` +
+                            `Faltante: $${faltante.toLocaleString()}\n` +
+                            `Días de venta restantes: ${diasRestantes}\n` +
+                            `*Cuota Diaria Sugerida: $${parseFloat(cuota).toLocaleString()}*`;
+
+            resDiv.innerHTML = `
+                <strong>Resumen de Meta (${textoPorc}):</strong><br>
+                Meta ajustada: $${metaAjustada.toLocaleString()}<br>
+                Faltante: $${faltante.toLocaleString()}<br>
+                Días de venta restantes: ${diasRestantes}<br><br>
+                <span class="highlight">Cuota diaria necesaria: $${parseFloat(cuota).toLocaleString()}</span>
+            `;
+        }
+    }
+
+    function compartirWS() {
+        const url = "https://wa.me/?text=" + encodeURIComponent(globalResumen);
+        window.open(url, '_blank');
+    }
+
+    function descargarPDF() {
+        const element = document.getElementById('printable-area');
+        const opt = {
+            margin: 0.5,
+            filename: 'Cuota_Venta_EFI.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
+    }
+</script>
+
+</body>
+</html>
