@@ -3,22 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cuota de Venta por Día - EFI</title>
+    <title>Calculadora de Ventas - EFI</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
         .container { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 420px; text-align: center; }
         .logo { width: 150px; height: auto; margin-bottom: 1.5rem; }
         h2 { color: #1a2a3a; margin-bottom: 1.2rem; font-size: 1.3rem; }
-        label { display: block; text-align: left; margin-bottom: 5px; font-weight: 600; color: #555; font-size: 0.85rem; }
+        label { display: block; text-align: left; margin-bottom: 8px; font-weight: 600; color: #555; font-size: 0.85rem; }
         input, select { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #ccd0d5; border-radius: 8px; box-sizing: border-box; font-size: 0.95rem; }
-        .btn-main { width: 100%; padding: 14px; background-color: #0056b3; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.3s; margin-bottom: 10px; }
-        .btn-main:hover { background-color: #004494; }
-        #app-content { display: none; }
+        
+        /* Botones de Objetivo */
+        .grid-objetivos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
+        .btn-obj { padding: 10px; border: 1px solid #0056b3; background: white; color: #0056b3; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.85rem; transition: 0.3s; }
+        .btn-obj.active { background-color: #0056b3; color: white; }
+        
+        /* Sección Pregunta Unidades */
+        .pregunta-unidades { background: #fdfdfd; border: 1px dashed #ccc; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
+        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-choice { flex: 1; padding: 8px; border: 1px solid #6c757d; background: white; border-radius: 5px; cursor: pointer; }
+        .btn-choice.active { background: #6c757d; color: white; }
+
+        .btn-main { width: 100%; padding: 14px; background-color: #1a2a3a; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.3s; margin-top: 10px; }
+        .btn-main:hover { background-color: #000; }
+        
+        #app-content, #campo-producto { display: none; }
         .result-box { margin-top: 20px; padding: 15px; background: #f8fbff; border: 1px solid #d1e3f8; border-radius: 10px; color: #1a2a3a; text-align: left; line-height: 1.5; }
-        .highlight { color: #0056b3; font-weight: bold; font-size: 1.2rem; }
+        .highlight { color: #0056b3; font-weight: bold; font-size: 1.2rem; display: block; margin-top: 5px; }
         .actions { display: flex; gap: 10px; margin-top: 15px; display: none; }
-        .btn-share { flex: 1; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.85rem; color: white; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .btn-share { flex: 1; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.85rem; color: white; text-align: center; text-decoration: none; }
         .btn-ws { background-color: #25D366; }
         .btn-pdf { background-color: #e74c3c; }
     </style>
@@ -27,15 +40,13 @@
 
 <div class="container" id="printable-area">
     <div id="login-section">
-        <img src="logo.png" alt="Eficacia Logo" class="logo" onerror="this.style.display='none'">
-        <h2>Acceso Calculadora</h2>
+        <h2>Ingreso al Sistema</h2>
         <input type="password" id="password" placeholder="Contraseña">
         <button class="btn-main" onclick="checkPassword()">Entrar</button>
     </div>
 
     <div id="app-content">
-        <img src="logo.png" alt="Eficacia Logo" style="width: 100px; margin-bottom: 10px;" onerror="this.style.display='none'">
-        <h2>Cuota de Venta por Día</h2>
+        <h2>Calculadora de Ventas</h2>
         
         <div style="display: flex; gap: 10px;">
             <div style="flex: 1;"><label>Año</label><input type="number" id="anio" value="2026"></div>
@@ -50,34 +61,51 @@
         </div>
 
         <label>Presupuesto Total (100%)</label>
-        <input type="number" id="presupuesto" placeholder="0.00">
+        <input type="number" id="presupuesto" placeholder="0">
         
         <label>Ventas Acumuladas</label>
-        <input type="number" id="ventas" placeholder="0.00">
+        <input type="number" id="ventas" placeholder="0">
         
         <label>Días Transcurridos</label>
         <input type="number" id="dias-transcurridos" placeholder="Ej: 10">
 
         <label>Objetivo de Cumplimiento</label>
-        <select id="porcentaje">
-            <option value="0.70">70%</option><option value="0.80">80%</option>
-            <option value="0.90">90%</option><option value="1.00" selected>100%</option>
-            <option value="1.10">110%</option><option value="1.20">120%</option>
-        </select>
+        <div class="grid-objetivos">
+            <button class="btn-obj" onclick="seleccionarObjetivo(0.70, this)">70%</button>
+            <button class="btn-obj" onclick="seleccionarObjetivo(0.80, this)">80%</button>
+            <button class="btn-obj" onclick="seleccionarObjetivo(0.90, this)">90%</button>
+            <button class="btn-obj active" onclick="seleccionarObjetivo(1.00, this)">100%</button>
+            <button class="btn-obj" onclick="seleccionarObjetivo(1.10, this)">110%</button>
+            <button class="btn-obj" onclick="seleccionarObjetivo(1.20, this)">120%</button>
+        </div>
+
+        <div class="pregunta-unidades">
+            <label>¿Quieres saber cuántos productos debes vender?</label>
+            <div class="btn-group">
+                <button class="btn-choice" id="btn-si" onclick="toggleProducto(true)">SÍ</button>
+                <button class="btn-choice active" id="btn-no" onclick="toggleProducto(false)">NO</button>
+            </div>
+            <div id="campo-producto" style="margin-top:15px;">
+                <label>Precio del producto que más rota</label>
+                <input type="number" id="precio-producto" placeholder="$ Valor unitario">
+            </div>
+        </div>
         
-        <button class="btn-main" onclick="calcular()">Calcular</button>
+        <button class="btn-main" onclick="calcular()">Calcular Estrategia</button>
 
         <div id="resultado" class="result-box" style="display: none;"></div>
 
         <div class="actions" id="action-buttons">
             <button class="btn-share btn-ws" onclick="compartirWS()">WhatsApp</button>
-            <button class="btn-share btn-pdf" onclick="descargarPDF()">Descargar PDF</button>
+            <button class="btn-share btn-pdf" onclick="descargarPDF()">PDF</button>
         </div>
     </div>
 </div>
 
 <script>
     let globalResumen = "";
+    let objetivoSeleccionado = 1.00;
+    let calcularUnidades = false;
 
     function checkPassword() {
         if (document.getElementById('password').value === "12345efi") {
@@ -86,63 +114,85 @@
         } else { alert("Contraseña incorrecta."); }
     }
 
+    function seleccionarObjetivo(valor, elemento) {
+        objetivoSeleccionado = valor;
+        document.querySelectorAll('.btn-obj').forEach(btn => btn.classList.remove('active'));
+        elemento.classList.add('active');
+    }
+
+    function toggleProducto(show) {
+        calcularUnidades = show;
+        document.getElementById('campo-producto').style.display = show ? 'block' : 'none';
+        document.getElementById('btn-si').classList.toggle('active', show);
+        document.getElementById('btn-no').classList.toggle('active', !show);
+    }
+
     function calcular() {
         const pto = parseFloat(document.getElementById('presupuesto').value);
         const vta = parseFloat(document.getElementById('ventas').value);
         const totalDias = parseInt(document.getElementById('mes').value);
         const transcurridos = parseInt(document.getElementById('dias-transcurridos').value);
-        const porc = parseFloat(document.getElementById('porcentaje').value);
+        const precioProd = parseFloat(document.getElementById('precio-producto').value);
 
-        if (isNaN(pto) || isNaN(vta) || isNaN(transcurridos)) return alert("Ingresa datos válidos.");
+        if (isNaN(pto) || isNaN(vta) || isNaN(transcurridos)) return alert("Por favor, llena los campos básicos.");
+        
+        if (calcularUnidades && (isNaN(precioProd) || precioProd <= 0)) {
+            return alert("Por favor, ingresa el precio del producto.");
+        }
 
-        const metaAjustada = pto * porc;
+        const metaAjustada = pto * objetivoSeleccionado;
         const faltante = metaAjustada - vta;
         const diasRestantes = totalDias - transcurridos;
-
         const resDiv = document.getElementById('resultado');
+
+        if (diasRestantes <= 0) {
+            resDiv.style.display = 'block';
+            resDiv.innerHTML = "El tiempo del mes ha terminado.";
+            return;
+        }
+
+        const cuotaDiaria = faltante / diasRestantes;
+        const textoPorc = Math.round(objetivoSeleccionado * 100) + "%";
+        
+        let mensajeUnidades = "";
+        let htmlUnidades = "";
+
+        if (calcularUnidades) {
+            const unidadesDiarias = Math.ceil(cuotaDiaria / precioProd);
+            mensajeUnidades = `\nObjetivo físico: Vender ${unidadesDiarias} unidades/día.`;
+            htmlUnidades = `<br><strong>Objetivo físico:</strong> Vender <span class="highlight">${unidadesDiarias} unidades</span> al día del producto estrella.`;
+        }
+
         resDiv.style.display = 'block';
         document.getElementById('action-buttons').style.display = 'flex';
 
-        if (diasRestantes <= 0) {
-            globalResumen = "Días transcurridos superan o igualan los días del mes.";
-            resDiv.innerHTML = `<strong>Aviso:</strong> ${globalResumen}`;
-        } else {
-            const cuota = (faltante / diasRestantes).toFixed(2);
-            const textoPorc = Math.round(porc * 100) + "%";
-            
-            globalResumen = `*Cuota de Venta por Día (${textoPorc})*\n` +
-                            `Meta Ajustada: $${metaAjustada.toLocaleString()}\n` +
-                            `Faltante: $${faltante.toLocaleString()}\n` +
-                            `Días de venta restantes: ${diasRestantes}\n` +
-                            `*Cuota Diaria Sugerida: $${parseFloat(cuota).toLocaleString()}*`;
+        globalResumen = `*Estrategia EFI (${textoPorc})*\n` +
+                        `Meta: $${metaAjustada.toLocaleString()}\n` +
+                        `Faltante: $${faltante.toLocaleString()}\n` +
+                        `Días restantes: ${diasRestantes}\n` +
+                        `*CUOTA DIARIA: $${Math.round(cuotaDiaria).toLocaleString()}*` + 
+                        mensajeUnidades;
 
-            resDiv.innerHTML = `
-                <strong>Resumen de Meta (${textoPorc}):</strong><br>
-                Meta ajustada: $${metaAjustada.toLocaleString()}<br>
-                Faltante: $${faltante.toLocaleString()}<br>
-                Días de venta restantes: ${diasRestantes}<br><br>
-                <span class="highlight">Cuota diaria necesaria: $${parseFloat(cuota).toLocaleString()}</span>
-            `;
-        }
+        resDiv.innerHTML = `
+            <strong>Resumen para meta al ${textoPorc}:</strong><br>
+            • Meta: $${metaAjustada.toLocaleString()}<br>
+            • Faltante: $${faltante.toLocaleString()}<br>
+            • Días restantes: ${diasRestantes}<br>
+            <span class="highlight">Cuota Diaria: $${Math.round(cuotaDiaria).toLocaleString()}</span>
+            ${htmlUnidades}
+        `;
     }
 
     function compartirWS() {
-        const url = "https://wa.me/?text=" + encodeURIComponent(globalResumen);
-        window.open(url, '_blank');
+        window.open("https://wa.me/?text=" + encodeURIComponent(globalResumen), '_blank');
     }
 
     function descargarPDF() {
         const element = document.getElementById('printable-area');
-        const opt = {
-            margin: 0.5,
-            filename: 'Cuota_Venta_EFI.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-        };
-        html2pdf().set(opt).from(element).save();
+        html2pdf().from(element).save('Estrategia_Venta.pdf');
     }
 </script>
 
 </body>
+</html>
 </html>
