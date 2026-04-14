@@ -1,197 +1,625 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Ventas - EFI</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .container { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 420px; text-align: center; }
-        .logo { width: 150px; height: auto; margin-bottom: 1.5rem; }
-        h2 { color: #1a2a3a; margin-bottom: 1.2rem; font-size: 1.3rem; }
-        label { display: block; text-align: left; margin-bottom: 8px; font-weight: 600; color: #555; font-size: 0.85rem; }
-        input, select { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #ccd0d5; border-radius: 8px; box-sizing: border-box; font-size: 0.95rem; }
-        
-        /* Botones de Objetivo */
-        .grid-objetivos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
-        .btn-obj { padding: 10px; border: 1px solid #0056b3; background: white; color: #0056b3; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.85rem; transition: 0.3s; }
-        .btn-obj.active { background-color: #0056b3; color: white; }
-        
-        /* Sección Pregunta Unidades */
-        .pregunta-unidades { background: #fdfdfd; border: 1px dashed #ccc; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
-        .btn-group { display: flex; gap: 10px; margin-top: 10px; }
-        .btn-choice { flex: 1; padding: 8px; border: 1px solid #6c757d; background: white; border-radius: 5px; cursor: pointer; }
-        .btn-choice.active { background: #6c757d; color: white; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculadora de Cuota de Venta por Día</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    :root{
+      --bg:#eef1f5;
+      --card:#ffffff;
+      --text:#1a2a3a;
+      --muted:#6b7280;
+      --line:#d6dbe3;
+      --primary:#0f5db8;
+      --primary-dark:#0b4b95;
+      --dark:#1c334a;
+      --gray-btn:#7b818a;
+      --success:#198754;
+      --danger:#dc3545;
+      --shadow:0 14px 30px rgba(0,0,0,0.10);
+      --radius:18px;
+    }
 
-        .btn-main { width: 100%; padding: 14px; background-color: #1a2a3a; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.3s; margin-top: 10px; }
-        .btn-main:hover { background-color: #000; }
-        
-        #app-content, #campo-producto { display: none; }
-        .result-box { margin-top: 20px; padding: 15px; background: #f8fbff; border: 1px solid #d1e3f8; border-radius: 10px; color: #1a2a3a; text-align: left; line-height: 1.5; }
-        .highlight { color: #0056b3; font-weight: bold; font-size: 1.2rem; display: block; margin-top: 5px; }
-        .actions { display: flex; gap: 10px; margin-top: 15px; display: none; }
-        .btn-share { flex: 1; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 0.85rem; color: white; text-align: center; text-decoration: none; }
-        .btn-ws { background-color: #25D366; }
-        .btn-pdf { background-color: #e74c3c; }
-    </style>
+    * { box-sizing: border-box; }
+
+    body{
+      margin:0;
+      font-family:"Segoe UI", Arial, sans-serif;
+      background:var(--bg);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      color:var(--text);
+    }
+
+    .wrap{
+      width:100%;
+      max-width:560px;
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:28px 32px 32px;
+    }
+
+    .logo-box{
+      text-align:center;
+      margin-bottom:10px;
+    }
+
+    .logo-box img{
+      max-width:210px;
+      width:100%;
+      height:auto;
+      object-fit:contain;
+    }
+
+    h1{
+      margin:10px 0 22px;
+      text-align:center;
+      font-size:1.1rem;
+      font-weight:800;
+      color:var(--dark);
+    }
+
+    .grid-2{
+      display:grid;
+      grid-template-columns:1fr 2fr;
+      gap:12px;
+    }
+
+    label{
+      display:block;
+      font-size:0.92rem;
+      font-weight:700;
+      margin:14px 0 8px;
+      color:#3b4958;
+    }
+
+    input, select{
+      width:100%;
+      height:40px;
+      border:1px solid #bfc7d1;
+      border-radius:9px;
+      padding:0 10px;
+      font-size:0.98rem;
+      outline:none;
+      background:#fff;
+      transition:0.2s ease;
+    }
+
+    input:focus, select:focus{
+      border-color:var(--primary);
+      box-shadow:0 0 0 3px rgba(15,93,184,0.10);
+    }
+
+    .helper{
+      font-size:0.85rem;
+      color:#6f7782;
+      margin-top:6px;
+      line-height:1.35;
+    }
+
+    .goal-grid{
+      display:grid;
+      grid-template-columns:repeat(3, 1fr);
+      gap:8px;
+      margin-top:8px;
+    }
+
+    .btn-goal,
+    .btn-choice{
+      border:1px solid var(--primary);
+      background:#fff;
+      color:var(--primary);
+      height:38px;
+      border-radius:9px;
+      font-weight:800;
+      cursor:pointer;
+      transition:0.2s ease;
+      font-size:0.95rem;
+    }
+
+    .btn-goal.active{
+      background:var(--primary);
+      color:#fff;
+    }
+
+    .product-box{
+      border:1px dashed #c8ced8;
+      border-radius:12px;
+      padding:14px;
+      margin-top:16px;
+    }
+
+    .choice-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:8px;
+    }
+
+    .btn-choice{
+      border-color:#8e959e;
+      color:#4f5965;
+    }
+
+    .btn-choice.active{
+      background:#79808a;
+      color:#fff;
+      border-color:#79808a;
+    }
+
+    .main-btn{
+      width:100%;
+      height:44px;
+      border:none;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:800;
+      font-size:1rem;
+      color:#fff;
+      background:var(--dark);
+      margin-top:24px;
+      transition:0.2s ease;
+    }
+
+    .main-btn:hover{
+      filter:brightness(0.95);
+    }
+
+    .secondary-btn{
+      background:#6c757d;
+      margin-top:10px;
+    }
+
+    .result{
+      display:none;
+      margin-top:18px;
+      background:#f7fbff;
+      border:1px solid #d9e8fb;
+      border-radius:12px;
+      padding:16px;
+      text-align:left;
+      line-height:1.6;
+    }
+
+    .strong-blue{
+      color:var(--primary);
+      font-weight:800;
+      font-size:1.08rem;
+    }
+
+    .strong-green{
+      color:var(--success);
+      font-weight:800;
+      font-size:1.08rem;
+    }
+
+    .actions{
+      display:none;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .action-btn{
+      flex:1;
+      height:40px;
+      border:none;
+      border-radius:9px;
+      color:#fff;
+      font-weight:800;
+      cursor:pointer;
+    }
+
+    .ws{ background:#25D366; }
+    .pdf{ background:#e74c3c; }
+
+    .notice{
+      margin-top:10px;
+      font-size:0.82rem;
+      color:#6a7280;
+      text-align:center;
+    }
+
+    .error-box{
+      display:none;
+      margin-top:12px;
+      background:#fff3f3;
+      color:#a12626;
+      border:1px solid #f2c4c4;
+      padding:10px 12px;
+      border-radius:10px;
+      font-size:0.9rem;
+    }
+
+    #app-content, #campo-producto{
+      display:none;
+    }
+
+    @media (max-width:560px){
+      .wrap{ padding:22px 18px 24px; }
+      .grid-2{ grid-template-columns:1fr; }
+    }
+  </style>
 </head>
 <body>
-
-<div class="container" id="printable-area">
+  <div class="wrap" id="printable-area">
     <div id="login-section">
-        <h2>Ingreso al Sistema</h2>
-        <input type="password" id="password" placeholder="Contraseña">
-        <button class="btn-main" onclick="checkPassword()">Entrar</button>
+      <div class="logo-box">
+        <img src="logo-eficacia.png" alt="Logo Eficacia">
+      </div>
+      <h1>Ingreso al Sistema</h1>
+
+      <label for="password">Contraseña</label>
+      <input type="password" id="password" placeholder="Ingresa tu contraseña">
+
+      <button class="main-btn" type="button" id="login-btn">Entrar</button>
+
+      <div class="error-box" id="login-error"></div>
+      <div class="notice">Acceso protegido con validación local y bloqueo temporal.</div>
     </div>
 
     <div id="app-content">
-        <h2>Calculadora de Ventas</h2>
-        
-        <div style="display: flex; gap: 10px;">
-            <div style="flex: 1;"><label>Año</label><input type="number" id="anio" value="2026"></div>
-            <div style="flex: 2;"><label>Mes</label>
-                <select id="mes">
-                    <option value="31">Enero</option><option value="28">Febrero</option><option value="31">Marzo</option>
-                    <option value="30">Abril</option><option value="31">Mayo</option><option value="30">Junio</option>
-                    <option value="31">Julio</option><option value="31">Agosto</option><option value="30">Septiembre</option>
-                    <option value="31">Octubre</option><option value="30">Noviembre</option><option value="31">Diciembre</option>
-                </select>
-            </div>
+      <div class="logo-box">
+        <img src="logo-eficacia.png" alt="Logo Eficacia">
+      </div>
+
+      <h1>Calculadora de Cuota de Venta por Día</h1>
+
+      <div class="grid-2">
+        <div>
+          <label for="anio">Año</label>
+          <input type="number" id="anio" value="2026">
+        </div>
+        <div>
+          <label for="mes">Mes</label>
+          <select id="mes">
+            <option value="31">Enero</option>
+            <option value="28">Febrero</option>
+            <option value="31">Marzo</option>
+            <option value="30">Abril</option>
+            <option value="31">Mayo</option>
+            <option value="30">Junio</option>
+            <option value="31">Julio</option>
+            <option value="31">Agosto</option>
+            <option value="30">Septiembre</option>
+            <option value="31">Octubre</option>
+            <option value="30">Noviembre</option>
+            <option value="31">Diciembre</option>
+          </select>
+        </div>
+      </div>
+
+      <label for="presupuesto">Presupuesto Total (100%)</label>
+      <input type="number" id="presupuesto" placeholder="0">
+
+      <label for="ventas">Ventas Acumuladas</label>
+      <input type="number" id="ventas" placeholder="0">
+
+      <label for="dias-transcurridos">Días Transcurridos</label>
+      <input type="number" id="dias-transcurridos" placeholder="Ej: 10">
+
+      <label for="dias-pdv">Días que le quedan de venta</label>
+      <input type="number" id="dias-pdv" placeholder="Ej: 8">
+      <div class="helper">Ingresa únicamente los días que realmente asistirá al PDV.</div>
+
+      <label>Objetivo de Cumplimiento</label>
+      <div class="goal-grid">
+        <button class="btn-goal" type="button" onclick="seleccionarObjetivo(0.70, this)">70%</button>
+        <button class="btn-goal" type="button" onclick="seleccionarObjetivo(0.80, this)">80%</button>
+        <button class="btn-goal" type="button" onclick="seleccionarObjetivo(0.90, this)">90%</button>
+        <button class="btn-goal active" type="button" onclick="seleccionarObjetivo(1.00, this)">100%</button>
+        <button class="btn-goal" type="button" onclick="seleccionarObjetivo(1.10, this)">110%</button>
+        <button class="btn-goal" type="button" onclick="seleccionarObjetivo(1.20, this)">120%</button>
+      </div>
+
+      <div class="product-box">
+        <label style="margin-top:0;">¿Quieres saber cuántos productos debes vender?</label>
+        <div class="choice-grid">
+          <button class="btn-choice" type="button" id="btn-si">SÍ</button>
+          <button class="btn-choice active" type="button" id="btn-no">NO</button>
         </div>
 
-        <label>Presupuesto Total (100%)</label>
-        <input type="number" id="presupuesto" placeholder="0">
-        
-        <label>Ventas Acumuladas</label>
-        <input type="number" id="ventas" placeholder="0">
-        
-        <label>Días Transcurridos</label>
-        <input type="number" id="dias-transcurridos" placeholder="Ej: 10">
-
-        <label>Objetivo de Cumplimiento</label>
-        <div class="grid-objetivos">
-            <button class="btn-obj" onclick="seleccionarObjetivo(0.70, this)">70%</button>
-            <button class="btn-obj" onclick="seleccionarObjetivo(0.80, this)">80%</button>
-            <button class="btn-obj" onclick="seleccionarObjetivo(0.90, this)">90%</button>
-            <button class="btn-obj active" onclick="seleccionarObjetivo(1.00, this)">100%</button>
-            <button class="btn-obj" onclick="seleccionarObjetivo(1.10, this)">110%</button>
-            <button class="btn-obj" onclick="seleccionarObjetivo(1.20, this)">120%</button>
+        <div id="campo-producto" style="margin-top:14px;">
+          <label for="precio-producto">Precio del producto que más rota</label>
+          <input type="number" id="precio-producto" placeholder="$ Valor unitario">
         </div>
+      </div>
 
-        <div class="pregunta-unidades">
-            <label>¿Quieres saber cuántos productos debes vender?</label>
-            <div class="btn-group">
-                <button class="btn-choice" id="btn-si" onclick="toggleProducto(true)">SÍ</button>
-                <button class="btn-choice active" id="btn-no" onclick="toggleProducto(false)">NO</button>
-            </div>
-            <div id="campo-producto" style="margin-top:15px;">
-                <label>Precio del producto que más rota</label>
-                <input type="number" id="precio-producto" placeholder="$ Valor unitario">
-            </div>
-        </div>
-        
-        <button class="btn-main" onclick="calcular()">Calcular Estrategia</button>
+      <button class="main-btn" type="button" id="calc-btn">Calcular Estrategia</button>
+      <button class="main-btn secondary-btn" type="button" id="logout-btn">Cerrar sesión</button>
 
-        <div id="resultado" class="result-box" style="display: none;"></div>
+      <div class="error-box" id="calc-error"></div>
 
-        <div class="actions" id="action-buttons">
-            <button class="btn-share btn-ws" onclick="compartirWS()">WhatsApp</button>
-            <button class="btn-share btn-pdf" onclick="descargarPDF()">PDF</button>
-        </div>
+      <div id="resultado" class="result"></div>
+
+      <div class="actions" id="action-buttons">
+        <button class="action-btn ws" type="button" id="ws-btn">WhatsApp</button>
+        <button class="action-btn pdf" type="button" id="pdf-btn">PDF</button>
+      </div>
     </div>
-</div>
+  </div>
 
-<script>
+  <script>
     let globalResumen = "";
     let objetivoSeleccionado = 1.00;
     let calcularUnidades = false;
 
-    function checkPassword() {
-        if (document.getElementById('password').value === "12345efi") {
-            document.getElementById('login-section').style.display = 'none';
-            document.getElementById('app-content').style.display = 'block';
-        } else { alert("Contraseña incorrecta."); }
+    const AUTH = {
+      maxIntentos: 5,
+      bloqueoMinutos: 15,
+      // Contraseña: 12345efi
+      passwordHash: "f4b5fa30589b413d880ad6912378a190e9d95429c11c4c182010111e60f6b05a"
+    };
+
+    function showError(id, msg) {
+      const box = document.getElementById(id);
+      box.textContent = msg;
+      box.style.display = 'block';
+    }
+
+    function hideError(id) {
+      const box = document.getElementById(id);
+      box.textContent = '';
+      box.style.display = 'none';
+    }
+
+    function mostrarApp() {
+      document.getElementById('login-section').style.display = 'none';
+      document.getElementById('app-content').style.display = 'block';
+    }
+
+    function mostrarLogin() {
+      document.getElementById('login-section').style.display = 'block';
+      document.getElementById('app-content').style.display = 'none';
+    }
+
+    function getIntentos() {
+      return parseInt(localStorage.getItem("efi_intentos") || "0", 10);
+    }
+
+    function setIntentos(valor) {
+      localStorage.setItem("efi_intentos", String(valor));
+    }
+
+    function getBloqueoHasta() {
+      return parseInt(localStorage.getItem("efi_bloqueo_hasta") || "0", 10);
+    }
+
+    function setBloqueoHasta(timestamp) {
+      localStorage.setItem("efi_bloqueo_hasta", String(timestamp));
+    }
+
+    function limpiarSeguridadLogin() {
+      localStorage.removeItem("efi_intentos");
+      localStorage.removeItem("efi_bloqueo_hasta");
+    }
+
+    function estaBloqueado() {
+      const ahora = Date.now();
+      const bloqueoHasta = getBloqueoHasta();
+
+      if (bloqueoHasta > ahora) {
+        const faltanMin = Math.ceil((bloqueoHasta - ahora) / 60000);
+        showError("login-error", "Acceso bloqueado temporalmente. Intenta de nuevo en " + faltanMin + " minuto(s).");
+        return true;
+      }
+
+      if (bloqueoHasta && bloqueoHasta <= ahora) {
+        limpiarSeguridadLogin();
+      }
+
+      return false;
+    }
+
+    async function sha256(texto) {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(texto);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    async function checkPassword() {
+      hideError("login-error");
+
+      if (estaBloqueado()) return;
+
+      const input = document.getElementById('password');
+      const password = input.value.trim();
+
+      if (!password) {
+        showError("login-error", "Ingresa la contraseña.");
+        return;
+      }
+
+      const hashIngresado = await sha256(password);
+
+      if (hashIngresado === AUTH.passwordHash) {
+        sessionStorage.setItem("efi_auth_ok", "1");
+        limpiarSeguridadLogin();
+        input.value = "";
+        mostrarApp();
+      } else {
+        let intentos = getIntentos() + 1;
+        setIntentos(intentos);
+
+        if (intentos >= AUTH.maxIntentos) {
+          const bloqueoHasta = Date.now() + AUTH.bloqueoMinutos * 60 * 1000;
+          setBloqueoHasta(bloqueoHasta);
+          showError("login-error", "Demasiados intentos fallidos. Acceso bloqueado por " + AUTH.bloqueoMinutos + " minutos.");
+        } else {
+          const restantes = AUTH.maxIntentos - intentos;
+          showError("login-error", "Contraseña incorrecta. Te quedan " + restantes + " intento(s).");
+        }
+      }
+    }
+
+    function cerrarSesion() {
+      sessionStorage.removeItem("efi_auth_ok");
+      mostrarLogin();
+      document.getElementById("resultado").style.display = "none";
+      document.getElementById("action-buttons").style.display = "none";
+      hideError("calc-error");
+    }
+
+    function validarSesionInicial() {
+      const authOk = sessionStorage.getItem("efi_auth_ok");
+      if (authOk === "1") {
+        mostrarApp();
+      } else {
+        mostrarLogin();
+      }
     }
 
     function seleccionarObjetivo(valor, elemento) {
-        objetivoSeleccionado = valor;
-        document.querySelectorAll('.btn-obj').forEach(btn => btn.classList.remove('active'));
-        elemento.classList.add('active');
+      objetivoSeleccionado = valor;
+      document.querySelectorAll('.btn-goal').forEach(btn => btn.classList.remove('active'));
+      elemento.classList.add('active');
     }
 
     function toggleProducto(show) {
-        calcularUnidades = show;
-        document.getElementById('campo-producto').style.display = show ? 'block' : 'none';
-        document.getElementById('btn-si').classList.toggle('active', show);
-        document.getElementById('btn-no').classList.toggle('active', !show);
+      calcularUnidades = show;
+      document.getElementById('campo-producto').style.display = show ? 'block' : 'none';
+      document.getElementById('btn-si').classList.toggle('active', show);
+      document.getElementById('btn-no').classList.toggle('active', !show);
     }
 
     function calcular() {
-        const pto = parseFloat(document.getElementById('presupuesto').value);
-        const vta = parseFloat(document.getElementById('ventas').value);
-        const totalDias = parseInt(document.getElementById('mes').value);
-        const transcurridos = parseInt(document.getElementById('dias-transcurridos').value);
-        const precioProd = parseFloat(document.getElementById('precio-producto').value);
+      hideError("calc-error");
 
-        if (isNaN(pto) || isNaN(vta) || isNaN(transcurridos)) return alert("Por favor, llena los campos básicos.");
-        
-        if (calcularUnidades && (isNaN(precioProd) || precioProd <= 0)) {
-            return alert("Por favor, ingresa el precio del producto.");
-        }
+      const pto = parseFloat(document.getElementById('presupuesto').value);
+      const vta = parseFloat(document.getElementById('ventas').value);
+      const totalDias = parseInt(document.getElementById('mes').value, 10);
+      const transcurridos = parseInt(document.getElementById('dias-transcurridos').value, 10);
+      const diasPDV = parseInt(document.getElementById('dias-pdv').value, 10);
+      const precioProd = parseFloat(document.getElementById('precio-producto').value);
 
-        const metaAjustada = pto * objetivoSeleccionado;
-        const faltante = metaAjustada - vta;
-        const diasRestantes = totalDias - transcurridos;
+      if (isNaN(pto) || isNaN(vta) || isNaN(transcurridos) || isNaN(diasPDV)) {
+        showError("calc-error", "Por favor, llena todos los campos obligatorios.");
+        return;
+      }
+
+      if (pto < 0 || vta < 0 || transcurridos < 0 || diasPDV <= 0) {
+        showError("calc-error", "Verifica los valores ingresados.");
+        return;
+      }
+
+      if (transcurridos > totalDias) {
+        showError("calc-error", "Los días transcurridos no pueden ser mayores al total del mes.");
+        return;
+      }
+
+      const diasRestantesCalendario = totalDias - transcurridos;
+
+      if (diasRestantesCalendario <= 0) {
         const resDiv = document.getElementById('resultado');
+        resDiv.style.display = 'block';
+        resDiv.innerHTML = `<strong>Resultado:</strong><br>El mes ya terminó.`;
+        document.getElementById('action-buttons').style.display = 'none';
+        return;
+      }
 
-        if (diasRestantes <= 0) {
-            resDiv.style.display = 'block';
-            resDiv.innerHTML = "El tiempo del mes ha terminado.";
-            return;
-        }
+      if (diasPDV > diasRestantesCalendario) {
+        showError("calc-error", "Los días que le quedan de venta no pueden ser mayores a los días restantes del mes.");
+        return;
+      }
 
-        const cuotaDiaria = faltante / diasRestantes;
-        const textoPorc = Math.round(objetivoSeleccionado * 100) + "%";
-        
-        let mensajeUnidades = "";
-        let htmlUnidades = "";
+      if (calcularUnidades && (isNaN(precioProd) || precioProd <= 0)) {
+        showError("calc-error", "Ingresa el precio del producto.");
+        return;
+      }
 
-        if (calcularUnidades) {
-            const unidadesDiarias = Math.ceil(cuotaDiaria / precioProd);
-            mensajeUnidades = `\nObjetivo físico: Vender ${unidadesDiarias} unidades/día.`;
-            htmlUnidades = `<br><strong>Objetivo físico:</strong> Vender <span class="highlight">${unidadesDiarias} unidades</span> al día del producto estrella.`;
-        }
+      const metaAjustada = pto * objetivoSeleccionado;
+      const faltante = metaAjustada - vta;
+      const resDiv = document.getElementById('resultado');
 
+      if (faltante <= 0) {
         resDiv.style.display = 'block';
         document.getElementById('action-buttons').style.display = 'flex';
 
-        globalResumen = `*Estrategia EFI (${textoPorc})*\n` +
-                        `Meta: $${metaAjustada.toLocaleString()}\n` +
-                        `Faltante: $${faltante.toLocaleString()}\n` +
-                        `Días restantes: ${diasRestantes}\n` +
-                        `*CUOTA DIARIA: $${Math.round(cuotaDiaria).toLocaleString()}*` + 
-                        mensajeUnidades;
+        globalResumen =
+          `*Estrategia EFI*\n` +
+          `¡Meta cumplida o superada!\n` +
+          `Meta objetivo: $${metaAjustada.toLocaleString()}\n` +
+          `Ventas acumuladas: $${vta.toLocaleString()}`;
 
         resDiv.innerHTML = `
-            <strong>Resumen para meta al ${textoPorc}:</strong><br>
-            • Meta: $${metaAjustada.toLocaleString()}<br>
-            • Faltante: $${faltante.toLocaleString()}<br>
-            • Días restantes: ${diasRestantes}<br>
-            <span class="highlight">Cuota Diaria: $${Math.round(cuotaDiaria).toLocaleString()}</span>
-            ${htmlUnidades}
+          <strong>Resumen:</strong><br>
+          Ya cumpliste o superaste la meta al ${Math.round(objetivoSeleccionado * 100)}%.<br>
+          <span class="strong-green">No necesitas cuota adicional.</span>
         `;
+        return;
+      }
+
+      const cuotaRealPDV = faltante / diasPDV;
+
+      let mensajeUnidades = "";
+      let htmlUnidades = "";
+
+      if (calcularUnidades) {
+        const unidadesPorDiaPDV = Math.ceil(cuotaRealPDV / precioProd);
+        mensajeUnidades = `\nObjetivo físico: ${unidadesPorDiaPDV} unidades por día.`;
+        htmlUnidades = `<br><strong>Objetivo físico:</strong> Vender <span class="strong-blue">${unidadesPorDiaPDV} unidades</span> por día.`;
+      }
+
+      const textoPorc = Math.round(objetivoSeleccionado * 100) + "%";
+
+      globalResumen =
+        `*Estrategia EFI (${textoPorc})*\n` +
+        `Meta ajustada: $${metaAjustada.toLocaleString()}\n` +
+        `Ventas acumuladas: $${vta.toLocaleString()}\n` +
+        `Faltante: $${faltante.toLocaleString()}\n` +
+        `Días de venta restantes: ${diasPDV}\n` +
+        `*Cuota diaria: $${Math.round(cuotaRealPDV).toLocaleString()}*` +
+        mensajeUnidades;
+
+      resDiv.style.display = 'block';
+      document.getElementById('action-buttons').style.display = 'flex';
+
+      resDiv.innerHTML = `
+        <strong>Resumen para meta al ${textoPorc}:</strong><br>
+        • Meta ajustada: $${metaAjustada.toLocaleString()}<br>
+        • Ventas acumuladas: $${vta.toLocaleString()}<br>
+        • Faltante: $${faltante.toLocaleString()}<br>
+        • Días que le quedan de venta: ${diasPDV}<br>
+        <span class="strong-green">Debe vender por día: $${Math.round(cuotaRealPDV).toLocaleString()}</span>
+        ${htmlUnidades}
+      `;
     }
 
     function compartirWS() {
-        window.open("https://wa.me/?text=" + encodeURIComponent(globalResumen), '_blank');
+      if (!globalResumen) {
+        showError("calc-error", "Primero debes calcular la estrategia.");
+        return;
+      }
+      window.open("https://wa.me/?text=" + encodeURIComponent(globalResumen), '_blank');
     }
 
     function descargarPDF() {
-        const element = document.getElementById('printable-area');
-        html2pdf().from(element).save('Estrategia_Venta.pdf');
+      const element = document.getElementById('printable-area');
+      html2pdf().from(element).save('Estrategia_Venta.pdf');
     }
-</script>
 
+    document.addEventListener("DOMContentLoaded", function () {
+      validarSesionInicial();
+
+      document.getElementById("login-btn").addEventListener("click", checkPassword);
+      document.getElementById("calc-btn").addEventListener("click", calcular);
+      document.getElementById("logout-btn").addEventListener("click", cerrarSesion);
+      document.getElementById("ws-btn").addEventListener("click", compartirWS);
+      document.getElementById("pdf-btn").addEventListener("click", descargarPDF);
+      document.getElementById("btn-si").addEventListener("click", function(){ toggleProducto(true); });
+      document.getElementById("btn-no").addEventListener("click", function(){ toggleProducto(false); });
+
+      document.getElementById("password").addEventListener("keydown", function(e) {
+        if (e.key === "Enter") checkPassword();
+      });
+    });
+  </script>
 </body>
 </html>
